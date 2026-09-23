@@ -67,7 +67,7 @@ const fotoProduto=p=>{
   ['MAMINHA','MAMINHA'],['CUPIM','CUPIM'],['PATINHO','PATINHO'],
   ['PALETA','PALETA'],['ACEM','ACEM']
  ];
- for(const [termo,foto] of regras) if(n===termo) return fotosBovinos[foto];
+ for(const [termo,foto] of regras) if(n===termo||n.startsWith(termo+' ')) return fotosBovinos[foto];
  if(n==='BIFE ANCHO'||n==='ANCHO') return fotosBovinos.ANCHO;
  // Foto representativa por categoria enquanto o produto não possui foto exata.
  // Assim nenhum item fica sem imagem e as fotos exatas acima sempre têm prioridade.
