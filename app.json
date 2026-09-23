@@ -6,12 +6,21 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.acouguedoalemao.app"
     },
-    "android": {},
+    "android": {
+      "package": "com.acouguedoalemao.app"
+    },
     "plugins": [
       "expo-status-bar",
       "expo-asset"
-    ]
+    ],
+    "icon": "./logo.jpeg",
+    "splash": {
+      "image": "./logo.jpeg",
+      "resizeMode": "contain",
+      "backgroundColor": "#0b0b0b"
+    }
   }
 }
