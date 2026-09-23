@@ -19,7 +19,7 @@ function classificar(nome,categoria,ncm){
  const n=norm(nome),c=norm(categoria),x=String(ncm||'');
  if((n.includes('FILE DE TILAPIA')||n.includes('FILE DE MERLUZA'))&&!n.includes('ISCA')) return 'Peixes';
  if(n.includes('TILAPIA')||n.includes('MERLUZA')||n.includes('BACALHAU')||n.includes('PEIXE')) return null;
- if(/CERVEJA|REFRIG|COCA|GUARANA|FANTA|SPRITE|ENERGET|SUCO|AGUA |AGUA$|CHA |ISOTON|GATORADE/.test(n)) return 'Bebidas';
+ if(c==='BEBIDAS') return 'Bebidas';
  if(/FRANGO|COXA|COXINHA|SOBRECOXA|ASA INTEIRA|TULIPA|SASSAMI|PEITO DE FRANGO|FILE DE COXA|GALINHA|CORAÇÃO DE FRANGO|CORACAO DE FRANGO/.test(n)) return 'Frangos';
  if(/SUIN|PORCO|PANCETA|BISTECA|LOMBO|PERNIL|COSTELA SUINA|BARRIGA|BANHA/.test(n)) return 'Suínos';
  if(/PICANHA|ALCATRA|ACEM|PATINHO|COXAO|CONTRA FILE|CONTRAFILE|MAMINHA|FRALDINHA|CUPIM|MUSCULO|PALETA|COSTELA BOV|CARNE MOIDA|BIFE|BOVIN|MOCOTO|BUCHO|RABO BOV|FIGADO/.test(n)) return 'Bovinos';
@@ -29,7 +29,7 @@ function classificar(nome,categoria,ncm){
  if(/DETERGENTE|DESINFET|AMACIANTE|SABAO|SABÃO|AGUA SANIT|LIMPADOR|ESPONJA|VASSOURA|SACO LIXO/.test(n)) return 'Limpeza';
  if(/SHAMPOO|CONDICIONADOR|SABONETE|DESODORANTE|CREME DENTAL|ESCOVA DENTAL|PAPEL HIGIENICO/.test(n)) return 'Perfumaria';
  if(/RACAO|RAÇÃO|PETISCO.*(CAO|CÃO|GATO)|AREIA.*GATO/.test(n)) return 'Animal';
- if(/BANANA|MACA|MAÇA|LARANJA|LIMAO|LIMÃO|TOMATE|CEBOLA|BATATA|ALHO|CENOURA|BROCOLIS|ALFACE|MAMAO|MAMÃO/.test(n)) return 'Hortfruti';
+ if(c==='HORTFRUTI') return 'Hortfruti';
  if(/PAPEL ALUMINIO|FILME PVC|PALITO|PRATO PLAST|TALHER|ISQUEIRO|PILHA|LAMPADA|EXTENSAO|EXTENSÃO/.test(n)) return 'Utensílios Domésticos';
  if(c.includes('ACOUGUE')) return 'Mercearia';
  return 'Mercearia';
