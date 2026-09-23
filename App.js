@@ -36,6 +36,11 @@ const fotoProduto=p=>{
   const termo=encodeURIComponent(p.nome+' embalagem produto');
   return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
  }
+ // Demais itens de mercado: procura a embalagem/foto usando a descrição exata do cadastro.
+ if(['Mercearia','Limpeza','Perfumaria','Laticínios','Padaria','Hortfruti','Animal','Utensílios Domésticos'].includes(p.categoria)){
+  const termo=encodeURIComponent(p.nome+' produto embalagem');
+  return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
+ }
  const regras=[
   ['COXAO MOLE','COXAO MOLE'],['COXAO DURO','COXAO DURO'],
   ['CONTRA FILE','CONTRA FILE'],['CONTRAFILE','CONTRA FILE'],
