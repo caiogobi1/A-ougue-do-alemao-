@@ -2,15 +2,15 @@ const fs=require('fs');
 const p='App.js';
 let s=fs.readFileSync(p,'utf8');
 
-// Limpa filtros já aplicados em execuções anteriores.
-s=s.replace(" const codigoLimpo=String(codigo).trim(); const codigoBalanca=/^\\d{6}$/.test(codigoLimpo); const vendidoPorKg=un==='kg'; const carnePeso=['Bovinos','Suínos','Frangos'].includes(grupo)&&vendidoPorKg; if(carnePeso&&!codigoBalanca)continue;",'');
-s=s.replace(" const codigoLimpo=String(codigo).trim(); const carne=['Bovinos','Suínos','Frangos'].includes(grupo); const codigoBalanca=/^000\\d{3}$/.test(codigoLimpo); if(carne&&!codigoBalanca)continue;",'');
+// Remove qualquer filtro de carnes já inserido anteriormente (inclusive duplicado).
+const filtro=" const codigoLimpo=String(codigo).trim(); const carne=['Bovinos','Suínos','Frangos'].includes(grupo); const codigoBalanca=/^000\\d{3}$/.test(codigoLimpo); if(carne&&!codigoBalanca)continue;";
+while(s.includes(filtro)) s=s.replace(filtro,'');
+const filtroAntigo=" const codigoLimpo=String(codigo).trim(); const codigoBalanca=/^\\d{6}$/.test(codigoLimpo); const vendidoPorKg=un==='kg'; const carnePeso=['Bovinos','Suínos','Frangos'].includes(grupo)&&vendidoPorKg; if(carnePeso&&!codigoBalanca)continue;";
+while(s.includes(filtroAntigo)) s=s.replace(filtroAntigo,'');
 
-// Reordena as categorias na tela.
 s=s.replace("const categorias=['Bovinos','Suínos','Frangos','Churrasco','Peixes','Mercearia','Bebidas','Padaria','Hortifruti','Laticínios','Limpeza','Perfumaria','Utensílios Domésticos','Animal'];",
 "const categorias=['Bovinos','Suínos','Frangos','Churrasco','Peixes','Hortifruti','Bebidas','Mercearia','Padaria','Laticínios','Limpeza','Perfumaria','Utensílios Domésticos','Animal'];");
 
-// Classificação mais rígida e em ordem de prioridade.
 const ini=s.indexOf('function classificar(nome,categoria,ncm){');
 const fim=s.indexOf('\nfunction montar(texto){',ini);
 if(ini<0||fim<0){console.error('Funcao classificar nao encontrada.');process.exit(1)}
@@ -34,10 +34,8 @@ const nova=`function classificar(nome,categoria,ncm){
 }`;
 s=s.slice(0,ini)+nova+s.slice(fim);
 
-// Somente códigos 000xxx nas três categorias de carnes.
-const old="if(!nome||!preco)continue; const grupo=classificar(nome,cat,ncm); if(!grupo)continue;";
-const novo="if(!nome||!preco)continue; const grupo=classificar(nome,cat,ncm); if(!grupo)continue; const codigoLimpo=String(codigo).trim(); const carne=['Bovinos','Suínos','Frangos'].includes(grupo); const codigoBalanca=/^000\\d{3}$/.test(codigoLimpo); if(carne&&!codigoBalanca)continue;";
-if(!s.includes(old)){console.error('Trecho de montagem nao encontrado.');process.exit(1)}
-s=s.replace(old,novo);
+const ancora="if(!nome||!preco)continue; const grupo=classificar(nome,cat,ncm); if(!grupo)continue;";
+if(!s.includes(ancora)){console.error('Trecho de montagem nao encontrado.');process.exit(1)}
+s=s.replace(ancora,ancora+filtro);
 fs.writeFileSync(p,s);
-console.log('Categorias reorganizadas e separadas; carnes somente 000xxx; hortifruti e bebidas separados.');
+console.log('OK: filtro unico aplicado e categorias reorganizadas.');
