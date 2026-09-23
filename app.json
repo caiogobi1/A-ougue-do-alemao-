@@ -20,7 +20,7 @@
     "splash": {
       "image": "./logo.jpeg",
       "resizeMode": "contain",
-      "backgroundColor": "#0b0b0b"
+      "backgroundColor": "#ffffff"
     }
   }
 }
