@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-
+import { mercearia } from './mercearia';
 const logo = require('./logo.jpeg');
 
 const produtos = [
@@ -28,16 +28,18 @@ const produtos = [
   { id: 8, categoria: 'Churrasco', nome: 'Coração', preco: 39.90, unidade: 'kg', emoji: '🥩' },
   { id: 9, categoria: 'Churrasco', nome: 'Queijo Coalho', preco: 25.00, unidade: 'un', emoji: '🧀' },
   { id: 10, categoria: 'Churrasco', nome: 'Pão de Alho', preco: 14.00, unidade: 'un', emoji: '🥖' },
+...mercearia,
 ];
 
-const categorias = ['Bovinos', 'Suínos', 'Frangos', 'Churrasco'];
+const categorias = ['Bovinos', 'Suínos', 'Frangos', 'Churrasco', 'Mercearia'];
 
 const dinheiro = (valor) =>
   `R$ ${valor.toFixed(2).replace('.', ',')}`;
 
 export default function App() {
-  const [categoria, setCategoria] = useState('Bovinos');
-  const [quantidades, setQuantidades] = useState({});
+const [categoria, setCategoria] = useState('Bovinos');
+const [subcategoria, setSubcategoria] = useState('Todos');
+const [quantidades, setQuantidades] = useState({});
   const [recebimento, setRecebimento] = useState('Delivery');
   const [endereco, setEndereco] = useState('');
   const [bairro, setBairro] = useState('');
@@ -192,11 +194,59 @@ ${entrega}
             </TouchableOpacity>
           ))}
         </ScrollView>
+{categoria === 'Mercearia' && (
+  <ScrollView
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    contentContainerStyle={styles.categories}
+  >
+    {[
+      'Todos',
+      'Cervejas',
+      'Refrigerantes',
+      'Doces',
+      'Molhos',
+      'Massas',
+      'Laticínios',
+      'Outros'
+    ].map((item) => (
+      <TouchableOpacity
+        key={item}
+        style={[
+          styles.categoryButton,
+          subcategoria === item && styles.categoryButtonActive,
+        ]}
+        onPress={() => setSubcategoria(item)}
+      >
+        <Text
+          style={[
+            styles.categoryText,
+            subcategoria === item && styles.categoryTextActive,
+          ]}
+        >
+          {item}
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </ScrollView>
+)}
+{produtos
+  .filter((produto) => {
+    if (categoria !== 'Mercearia') {
+      return produto.categoria === categoria;
+    }
 
-        {produtos
-          .filter((produto) => produto.categoria === categoria)
-          .map((produto) => (
-            <View style={styles.productCard} key={produto.id}>
+    if (subcategoria === 'Todos') {
+      return produto.categoria === 'Mercearia';
+    }
+
+    return produto.categoria === subcategoria;
+  })
+  .map((produto, index) => (
+  <View
+    style={styles.productCard}
+    key={`${produto.codigo || produto.id || 'produto'}-${index}`}
+  >
               <Text style={styles.productEmoji}>{produto.emoji}</Text>
 
               <View style={styles.productInfo}>
@@ -212,27 +262,27 @@ ${entrega}
               </View>
 
               <View style={styles.quantityArea}>
-                <TouchableOpacity
-                  style={styles.quantityButton}
-                  onPress={() => alterarQuantidade(produto, -1)}
-                >
-                  <Text style={styles.quantityButtonText}>−</Text>
-                </TouchableOpacity>
+  <TouchableOpacity
+    style={styles.quantityButton}
+    onPress={() => alterarQuantidade(produto, -1)}
+  >
+    <Text style={styles.quantityButtonText}>-</Text>
+  </TouchableOpacity>
 
-                <Text style={styles.quantityText}>
-                  {quantidadeFormatada(produto)}
-                </Text>
+  <Text style={styles.quantityText}>
+    {quantidadeFormatada(produto)}
+  </Text>
 
-                <TouchableOpacity
-                  style={styles.quantityButton}
-                  onPress={() => alterarQuantidade(produto, 1)}
-                >
-                  <Text style={styles.quantityButtonText}>+</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-
+  <TouchableOpacity
+    style={styles.quantityButton}
+    onPress={() => alterarQuantidade(produto, 1)}
+  >
+    <Text style={styles.quantityButtonText}>+</Text>
+  </TouchableOpacity>
+</View>
+</View>
+))}
+        
         <View style={styles.cart}>
           <Text style={styles.cartTitle}>🛒 Seu carrinho</Text>
 
