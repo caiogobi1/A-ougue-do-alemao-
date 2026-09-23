@@ -5,7 +5,7 @@ let s=fs.readFileSync(p,'utf8');
 // Ordem das categorias.
 s=s.replace(/const categorias=\[[^;]+\];/,"const categorias=['Bovinos','Suínos','Frangos','Churrasco','Peixes','Hortfruti','Bebidas','Mercearia','Padaria','Laticínios','Limpeza','Perfumaria','Utensílios Domésticos','Animal'];");
 
-// Substitui a função de classificação inteira sem depender do nome do argumento de montar().
+// Substitui a função de classificação inteira.
 const ini=s.indexOf('function classificar(nome,categoria,ncm){');
 const fim=s.indexOf('function montar(',ini);
 if(ini<0||fim<0){console.error('Nao encontrei classificar/montar.');process.exit(1)}
@@ -29,7 +29,6 @@ const nova=`function classificar(nome,categoria,ncm){
 }\n`;
 s=s.slice(0,ini)+nova+s.slice(fim);
 
-// Remove filtros anteriores, caso existam, e injeta um único filtro.
 s=s.replace(/ const codigoLimpo=String\(codigo\)\.trim\(\); const carne=\['Bovinos','Suínos','Frangos'\]\.includes\(grupo\); const codigoBalanca=\/\^000\\d\{3\}\$\/\.test\(codigoLimpo\); if\(carne&&!codigoBalanca\)continue;/g,'');
 const ancora="if(!nome||!preco)continue; const grupo=classificar(nome,cat,ncm); if(!grupo)continue;";
 const filtro=" const codigoLimpo=String(codigo).trim(); const carne=['Bovinos','Suínos','Frangos'].includes(grupo); const codigoBalanca=/^000\\d{3}$/.test(codigoLimpo); if(carne&&!codigoBalanca)continue;";
