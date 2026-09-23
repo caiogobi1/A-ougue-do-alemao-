@@ -16,22 +16,22 @@ function parseCSV(text){
  if(cell||row.length){row.push(cell);rows.push(row);} return rows;
 }
 function classificar(nome,categoria,ncm){
- const n=norm(nome),c=norm(categoria),x=String(ncm||'');
+ const n=norm(nome),c=norm(categoria);
  if((n.includes('FILE DE TILAPIA')||n.includes('FILE DE MERLUZA'))&&!n.includes('ISCA')) return 'Peixes';
- if(n.includes('TILAPIA')||n.includes('MERLUZA')||n.includes('BACALHAU')||n.includes('PEIXE')) return null;
+ if(/TILAPIA|MERLUZA|BACALHAU|PEIXE/.test(n)) return null;
  if(c==='BEBIDAS') return 'Bebidas';
- if(/FRANGO|COXA|COXINHA|SOBRECOXA|ASA INTEIRA|TULIPA|SASSAMI|PEITO DE FRANGO|FILE DE COXA|GALINHA|CORAÇÃO DE FRANGO|CORACAO DE FRANGO/.test(n)) return 'Frangos';
+ if(c==='HORTFRUTI') return 'Hortfruti';
+ if(c==='MERCEARIA') return 'Mercearia';
+ if(c==='PADARIA') return 'Padaria';
+ if(c==='LATICINIOS') return 'Laticínios';
+ if(c==='LIMPEZA') return 'Limpeza';
+ if(c==='PERFUMARIA') return 'Perfumaria';
+ if(c==='UTENSILIOS DOMESTICOS') return 'Utensílios Domésticos';
+ if(c==='ANIMAL') return 'Animal';
+ if(/LINGUICA|ESPETO|CARVAO|SAL GROSSO|PAO DE ALHO|QUEIJO COALHO/.test(n)) return 'Churrasco';
+ if(/FRANGO|COXA|COXINHA|SOBRECOXA|ASA INTEIRA|TULIPA|SASSAMI|PEITO DE FRANGO|FILE DE COXA|GALINHA|CORACAO DE FRANGO/.test(n)) return 'Frangos';
  if(/SUIN|PORCO|PANCETA|BISTECA|LOMBO|PERNIL|COSTELA SUINA|BARRIGA|BANHA/.test(n)) return 'Suínos';
  if(/PICANHA|ALCATRA|ACEM|PATINHO|COXAO|CONTRA FILE|CONTRAFILE|MAMINHA|FRALDINHA|CUPIM|MUSCULO|PALETA|COSTELA BOV|CARNE MOIDA|BIFE|BOVIN|MOCOTO|BUCHO|RABO BOV|FIGADO/.test(n)) return 'Bovinos';
- if(/LINGUICA|ESPETO|CARVAO|SAL GROSSO|PAO DE ALHO|QUEIJO COALHO/.test(n)) return 'Churrasco';
- if(/PAO |PAO$|BOLO|ROSCA|BISCOITO|BOLACHA|TORRADA/.test(n)) return 'Padaria';
- if(/LEITE|QUEIJO|IOGUR|REQUEIJAO|MANTEIGA|MARGARINA|CREME DE LEITE/.test(n)) return 'Laticínios';
- if(/DETERGENTE|DESINFET|AMACIANTE|SABAO|SABÃO|AGUA SANIT|LIMPADOR|ESPONJA|VASSOURA|SACO LIXO/.test(n)) return 'Limpeza';
- if(/SHAMPOO|CONDICIONADOR|SABONETE|DESODORANTE|CREME DENTAL|ESCOVA DENTAL|PAPEL HIGIENICO/.test(n)) return 'Perfumaria';
- if(/RACAO|RAÇÃO|PETISCO.*(CAO|CÃO|GATO)|AREIA.*GATO/.test(n)) return 'Animal';
- if(c==='HORTFRUTI') return 'Hortfruti';
- if(/PAPEL ALUMINIO|FILME PVC|PALITO|PRATO PLAST|TALHER|ISQUEIRO|PILHA|LAMPADA|EXTENSAO|EXTENSÃO/.test(n)) return 'Utensílios Domésticos';
- if(c.includes('ACOUGUE')) return 'Mercearia';
  return 'Mercearia';
 }
 function montar(text){
