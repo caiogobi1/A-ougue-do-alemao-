@@ -37,7 +37,12 @@ const fotoProduto=p=>{
   return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
  }
  // Demais itens de mercado: procura a embalagem/foto usando a descrição exata do cadastro.
- if(['Mercearia','Limpeza','Perfumaria','Laticínios','Padaria','Hortfruti','Animal','Utensílios Domésticos'].includes(p.categoria)){
+ if(p.categoria==='Hortfruti'){
+  // Hortifruti deve parecer feira: fruta/verdura fresca, sem embalagem ou saquinho.
+  const termo=encodeURIComponent(p.nome+' fruta verdura fresca in natura sem embalagem');
+  return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
+ }
+ if(['Mercearia','Limpeza','Perfumaria','Laticínios','Padaria','Animal','Utensílios Domésticos'].includes(p.categoria)){
   const termo=encodeURIComponent(p.nome+' produto embalagem');
   return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
  }
