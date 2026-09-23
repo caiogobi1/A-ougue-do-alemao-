@@ -5,7 +5,7 @@ import { Asset } from 'expo-asset';
 const logo = require('./logo.jpeg');
 const csvAsset = require('./chat.csv');
 
-const categorias=['Bovinos','Suínos','Frangos','Churrasco','Peixes','Mercearia','Bebidas','Bebidas Alcoólicas','Refrigerantes','Energéticos','Sucos','Águas','Outras Bebidas','Padaria','Hortfruti','Laticínios','Limpeza','Perfumaria','Utensílios Domésticos','Animal'];
+const categorias=['Bovinos','Suínos','Frangos','Churrasco','Peixes','Mercearia','Bebidas Alcoólicas','Refrigerantes','Energéticos','Sucos','Águas','Outras Bebidas','Padaria','Hortfruti','Laticínios','Limpeza','Perfumaria','Utensílios Domésticos','Animal'];
 const emoji={Bovinos:'🥩',Suínos:'🥓',Frangos:'🍗',Churrasco:'🔥',Peixes:'🐟',Mercearia:'🛒',Bebidas:'🥤','Bebidas Alcoólicas':'🍺',Refrigerantes:'🥤',Energéticos:'⚡',Sucos:'🧃',Águas:'💧','Outras Bebidas':'🥛',Padaria:'🥖',Hortfruti:'🍎',Laticínios:'🧀',Limpeza:'🧹',Perfumaria:'🧴','Utensílios Domésticos':'🍴',Animal:'🐾'};
 const dinheiro=v=>`R$ ${Number(v||0).toFixed(2).replace('.',',')}`;
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
