@@ -21,8 +21,15 @@ const fotosBovinos={
  PATINHO:require('./assets/produtos/recortes/patinho.jpg'),
  PALETA:require('./assets/produtos/recortes/paleta.jpg'),
 };
+const fotosInternet={
+ 'BIFE A ROLE TEMPERADO':{uri:'https://images.pexels.com/photos/28881690/pexels-photo-28881690.jpeg?auto=compress&cs=tinysrgb&w=600'},
+ 'BIFE BOVINO EMPANADO':{uri:'https://images.pexels.com/photos/30939972/pexels-photo-30939972.jpeg?auto=compress&cs=tinysrgb&w=600'},
+ 'BIFE BOVINO TEMPERADO':{uri:'https://images.pexels.com/photos/6896518/pexels-photo-6896518.jpeg?auto=compress&cs=tinysrgb&w=600'},
+ 'CARNE MOIDA BOVINA':{uri:'https://images.pexels.com/photos/27104034/pexels-photo-27104034.jpeg?auto=compress&cs=tinysrgb&w=600'},
+};
 const fotoProduto=p=>{
  const n=norm(p.nome);
+ if(fotosInternet[n]) return fotosInternet[n];
  const regras=[
   ['COXAO MOLE','COXAO MOLE'],['COXAO DURO','COXAO DURO'],
   ['CONTRA FILE','CONTRA FILE'],['CONTRAFILE','CONTRA FILE'],
