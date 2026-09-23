@@ -39,7 +39,25 @@ const fotoProduto=p=>{
  ];
  for(const [termo,foto] of regras) if(n===termo) return fotosBovinos[foto];
  if(n==='BIFE ANCHO'||n==='ANCHO') return fotosBovinos.ANCHO;
- return null;
+ // Foto representativa por categoria enquanto o produto não possui foto exata.
+ // Assim nenhum item fica sem imagem e as fotos exatas acima sempre têm prioridade.
+ const fallback={
+  Bovinos:{uri:'https://images.pexels.com/photos/618775/pexels-photo-618775.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  'Suínos':{uri:'https://images.pexels.com/photos/1927377/pexels-photo-1927377.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  Frangos:{uri:'https://images.pexels.com/photos/616354/pexels-photo-616354.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  Churrasco:{uri:'https://images.pexels.com/photos/1251208/pexels-photo-1251208.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  Peixes:{uri:'https://images.pexels.com/photos/3296279/pexels-photo-3296279.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  Mercearia:{uri:'https://images.pexels.com/photos/264636/pexels-photo-264636.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  Bebidas:{uri:'https://images.pexels.com/photos/544961/pexels-photo-544961.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  Padaria:{uri:'https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  Hortfruti:{uri:'https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  'Laticínios':{uri:'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  Limpeza:{uri:'https://images.pexels.com/photos/4239031/pexels-photo-4239031.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  Perfumaria:{uri:'https://images.pexels.com/photos/965989/pexels-photo-965989.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  'Utensílios Domésticos':{uri:'https://images.pexels.com/photos/4226864/pexels-photo-4226864.jpeg?auto=compress&cs=tinysrgb&w=400'},
+  Animal:{uri:'https://images.pexels.com/photos/6568942/pexels-photo-6568942.jpeg?auto=compress&cs=tinysrgb&w=400'},
+ };
+ return fallback[p.categoria]||null;
 };
 const CHAVE_PIX='63740060000160';
 
