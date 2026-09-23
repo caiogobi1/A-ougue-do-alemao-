@@ -41,6 +41,15 @@ const fotoProduto=p=>{
   const termo=encodeURIComponent(p.nome+' produto embalagem');
   return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
  }
+ // Frangos e suínos: foto individual baseada no nome exato de cada corte/produto.
+ if(p.categoria==='Frangos'){
+  const termo=encodeURIComponent(p.nome+' frango corte cru açougue');
+  return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
+ }
+ if(p.categoria==='Suínos'){
+  const termo=encodeURIComponent(p.nome+' carne suina corte cru açougue');
+  return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
+ }
  const regras=[
   ['COXAO MOLE','COXAO MOLE'],['COXAO DURO','COXAO DURO'],
   ['CONTRA FILE','CONTRA FILE'],['CONTRAFILE','CONTRA FILE'],
