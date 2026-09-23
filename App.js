@@ -21,7 +21,10 @@ function classificar(nome,categoria,ncm){
  if(/TILAPIA|MERLUZA|BACALHAU|PEIXE/.test(n)) return null;
  if(c==='BEBIDAS') return 'Bebidas';
  if(c==='HORTFRUTI') return 'Hortfruti';
- if(c==='MERCEARIA') return 'Mercearia';
+ if(c==='MERCEARIA'){
+  if(/ARROZ|FEIJAO|ACUCAR|OLEO|AZEITE|CAFE|MACARRAO|MASSA|MOLHO|EXTRATO DE TOMATE|LEITE|NESCAU|ACHOCOLAT|LEITE EM PO|FARINHA|FUBA|SAL |SAL$|TEMPERO|VINAGRE|MAIONESE|KETCHUP|MOSTARDA|SARDINHA|ATUM|MILHO|ERVILHA|PALMITO|AVEIA|FAROFA/.test(n)) return 'Mercearia';
+  return null;
+}
  if(c==='PADARIA') return 'Padaria';
  if(c==='LATICINIOS') return 'Laticínios';
  if(c==='LIMPEZA') return 'Limpeza';
