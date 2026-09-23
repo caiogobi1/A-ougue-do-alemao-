@@ -77,6 +77,9 @@ const fotoProduto=p=>{
   'Utensílios Domésticos':{uri:'https://images.pexels.com/photos/4226864/pexels-photo-4226864.jpeg?auto=compress&cs=tinysrgb&w=400'},
   Animal:{uri:'https://images.pexels.com/photos/6568942/pexels-photo-6568942.jpeg?auto=compress&cs=tinysrgb&w=400'},
  };
+ // Não mostra foto genérica de bebida: é melhor o ícone correto da categoria
+ // do que repetir a mesma imagem em Pitu, Del Valle, água, Nescau etc.
+ if(p.categoria==='Bebidas') return null;
  return fallback[p.categoria]||null;
 };
 const CHAVE_PIX='63740060000160';
