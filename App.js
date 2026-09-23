@@ -5,8 +5,8 @@ import { Asset } from 'expo-asset';
 const logo = require('./logo.jpeg');
 const csvAsset = require('./chat.csv');
 
-const categorias=['Bovinos','Suínos','Frangos','Churrasco','Peixes','Mercearia','Bebidas','Padaria','Hortfruti','Laticínios','Limpeza','Perfumaria','Utensílios Domésticos','Animal'];
-const emoji={Bovinos:'🥩',Suínos:'🥓',Frangos:'🍗',Churrasco:'🔥',Peixes:'🐟',Mercearia:'🛒',Bebidas:'🥤',Padaria:'🥖',Hortfruti:'🍎',Laticínios:'🧀',Limpeza:'🧹',Perfumaria:'🧴','Utensílios Domésticos':'🍴',Animal:'🐾'};
+const categorias=['Bovinos','Suínos','Frangos','Churrasco','Peixes','Mercearia','Bebidas','Bebidas Alcoólicas','Refrigerantes','Energéticos','Sucos','Águas','Outras Bebidas','Padaria','Hortfruti','Laticínios','Limpeza','Perfumaria','Utensílios Domésticos','Animal'];
+const emoji={Bovinos:'🥩',Suínos:'🥓',Frangos:'🍗',Churrasco:'🔥',Peixes:'🐟',Mercearia:'🛒',Bebidas:'🥤','Bebidas Alcoólicas':'🍺',Refrigerantes:'🥤',Energéticos:'⚡',Sucos:'🧃',Águas:'💧','Outras Bebidas':'🥛',Padaria:'🥖',Hortfruti:'🍎',Laticínios:'🧀',Limpeza:'🧹',Perfumaria:'🧴','Utensílios Domésticos':'🍴',Animal:'🐾'};
 const dinheiro=v=>`R$ ${Number(v||0).toFixed(2).replace('.',',')}`;
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
 const parsePreco=s=>Number(String(s||'0').replace(/R\$\s?/g,'').replace(/\./g,'').replace(',','.'))||0;
@@ -29,7 +29,7 @@ function classificar(nome,categoria,ncm){
  if(c==='UTENSILIOS DOMESTICOS') return 'Utensílios Domésticos';
  if(c==='ANIMAL') return 'Animal';
  if(/LINGUICA|ESPETO|CARVAO|SAL GROSSO|PAO DE ALHO|QUEIJO COALHO/.test(n)) return 'Churrasco';
- if(/FRANGO|COXA|COXINHA|SOBRECOXA|ASA INTEIRA|TULIPA|SASSAMI|PEITO DE FRANGO|FILE DE COXA|GALINHA|CORACAO DE FRANGO/.test(n)) return 'Frangos';
+ if(/FRANGO|COXA|COXINHA|SOBRECOXA|(^| )ASA($| )|MEIO DA ASA|TULIPA|SASSAMI|PEITO DE FRANGO|FILE DE COXA|GALINHA|CORACAO DE FRANGO/.test(n)) return 'Frangos';
  if(/SUIN|PORCO|PANCETA|BISTECA|LOMBO|PERNIL|COSTELA SUINA|BARRIGA|BANHA/.test(n)) return 'Suínos';
  if(/PICANHA|ALCATRA|ACEM|PATINHO|COXAO|CONTRA FILE|CONTRAFILE|MAMINHA|FRALDINHA|CUPIM|MUSCULO|PALETA|COSTELA BOV|CARNE MOIDA|BIFE|BOVIN|MOCOTO|BUCHO|RABO BOV|FIGADO/.test(n)) return 'Bovinos';
  return 'Mercearia';
@@ -43,7 +43,7 @@ function montar(text){
 export default function App(){
  const [produtos,setProdutos]=useState([]),[loading,setLoading]=useState(true),[categoria,setCategoria]=useState('Bovinos'),[busca,setBusca]=useState(''),[qtd,setQtd]=useState({}),[recebimento,setRecebimento]=useState('Delivery'),[endereco,setEndereco]=useState(''),[bairro,setBairro]=useState(''),[pagamento,setPagamento]=useState('Pix');
  useEffect(()=>{(async()=>{try{const a=Asset.fromModule(csvAsset);await a.downloadAsync();const res=await fetch(a.localUri||a.uri);setProdutos(montar(await res.text()));}catch(e){Alert.alert('Erro no catálogo','Não foi possível carregar os produtos.');}finally{setLoading(false);}})();},[]);
- const visiveis=useMemo(()=>produtos.filter(p=>p.categoria===categoria&&(!busca.trim()||norm(`${p.nome} ${p.codigo}`).includes(norm(busca)))),[produtos,categoria,busca]);
+ const visiveis=useMemo(()=>produtos.filter(p=>{const n=norm(p.nome);let ok=p.categoria===categoria;if(p.categoria==='Bebidas'){if(categoria==='Bebidas')ok=true;else if(categoria==='Bebidas Alcoólicas')ok=/CERVEJA|ICE |VINHO|VODKA|WHISK|GIN |PINGA|CACHACA|PITU|CABARE|COROTE|CHOPP/.test(n);else if(categoria==='Refrigerantes')ok=/REFRIG|COCA|FANTA|SPRITE|GUARANA|SUKITA|CONVENCAO|JABOTI/.test(n);else if(categoria==='Energéticos')ok=/ENERGET|RED BULL|MONSTER|TNT/.test(n);else if(categoria==='Sucos')ok=/SUCO|NECTAR|SUFRESH|DEL VALLE/.test(n);else if(categoria==='Águas')ok=/AGUA|CRYSTAL/.test(n);else if(categoria==='Outras Bebidas')ok=!/CERVEJA|ICE |VINHO|VODKA|WHISK|GIN |PINGA|CACHACA|PITU|CABARE|COROTE|CHOPP|REFRIG|COCA|FANTA|SPRITE|GUARANA|SUKITA|CONVENCAO|JABOTI|ENERGET|RED BULL|MONSTER|TNT|SUCO|NECTAR|SUFRESH|DEL VALLE|AGUA|CRYSTAL/.test(n);}return ok&&(!busca.trim()||norm(`${p.nome} ${p.codigo}`).includes(norm(busca)));}),[produtos,categoria,busca]);
  const alterar=(p,d)=>setQtd(x=>{const passo=p.unidade==='kg'?0.5:1,n=Math.max(0,Number(((x[p.id]||0)+d*passo).toFixed(1)));return{...x,[p.id]:n}});
  const carrinho=useMemo(()=>produtos.filter(p=>(qtd[p.id]||0)>0).map(p=>({...p,quantidade:qtd[p.id]})),[produtos,qtd]);
  const total=useMemo(()=>carrinho.reduce((s,p)=>s+p.preco*p.quantidade,0),[carrinho]);
