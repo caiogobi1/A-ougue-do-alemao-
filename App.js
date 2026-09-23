@@ -30,6 +30,12 @@ const fotosInternet={
 const fotoProduto=p=>{
  const n=norm(p.nome);
  if(fotosInternet[n]) return fotosInternet[n];
+ // Bebidas: usa imagens de busca por produto/variante para evitar uma foto genérica repetida.
+ // A URL usa o nome normalizado do cadastro, então Red Bull/Monster/TNT/Baly/Coca/Fanta/Guaraná ficam distintos.
+ if(/RED ?BULL|REDBULL|RE BULL|MONSTER|MONTER|ENERGETICO|ENERG |TNT|BALY|COCA|FANTA|GUARANA|KUAT|SPRITE/.test(n)){
+  const termo=encodeURIComponent(p.nome+' embalagem produto');
+  return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
+ }
  const regras=[
   ['COXAO MOLE','COXAO MOLE'],['COXAO DURO','COXAO DURO'],
   ['CONTRA FILE','CONTRA FILE'],['CONTRAFILE','CONTRA FILE'],
