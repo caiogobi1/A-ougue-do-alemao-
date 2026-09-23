@@ -1,98 +1,665 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Linking, Alert } from 'react-native';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Linking,
+  Alert,
+} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+
+const logo = require('./logo.jpeg');
 
 const produtos = [
   { id: 1, categoria: 'Bovinos', nome: 'Picanha', preco: 99.90, unidade: 'kg', emoji: '🥩' },
   { id: 2, categoria: 'Bovinos', nome: 'Contra Filé', preco: 64.90, unidade: 'kg', emoji: '🥩' },
   { id: 3, categoria: 'Bovinos', nome: 'Maminha', preco: 63.90, unidade: 'kg', emoji: '🥩' },
+
   { id: 4, categoria: 'Suínos', nome: 'Linguiça', preco: 19.90, unidade: 'kg', emoji: '🌭' },
   { id: 5, categoria: 'Suínos', nome: 'Panceta', preco: 19.90, unidade: 'kg', emoji: '🥓' },
+
   { id: 6, categoria: 'Frangos', nome: 'Peito de Frango', preco: 19.90, unidade: 'kg', emoji: '🍗' },
   { id: 7, categoria: 'Frangos', nome: 'Tulipa', preco: 29.90, unidade: 'kg', emoji: '🍗' },
-  { id: 8, categoria: 'Churrasco', nome: 'Coração', preco: 39.90, unidade: 'kg', emoji: '🍖' },
+
+  { id: 8, categoria: 'Churrasco', nome: 'Coração', preco: 39.90, unidade: 'kg', emoji: '🥩' },
   { id: 9, categoria: 'Churrasco', nome: 'Queijo Coalho', preco: 25.00, unidade: 'un', emoji: '🧀' },
   { id: 10, categoria: 'Churrasco', nome: 'Pão de Alho', preco: 14.00, unidade: 'un', emoji: '🥖' },
 ];
 
-const dinheiro = v => `R$ ${v.toFixed(2).replace('.', ',')}`;
+const categorias = ['Bovinos', 'Suínos', 'Frangos', 'Churrasco'];
+
+const dinheiro = (valor) =>
+  `R$ ${valor.toFixed(2).replace('.', ',')}`;
 
 export default function App() {
   const [categoria, setCategoria] = useState('Bovinos');
-  const [carrinho, setCarrinho] = useState({});
-  const [recebimento, setRecebimento] = useState('Retirada');
-  const [pagamento, setPagamento] = useState('Pix');
-  const [nome, setNome] = useState('');
+  const [quantidades, setQuantidades] = useState({});
+  const [recebimento, setRecebimento] = useState('Delivery');
   const [endereco, setEndereco] = useState('');
   const [bairro, setBairro] = useState('');
-  const [complemento, setComplemento] = useState('');
+  const [pagamento, setPagamento] = useState('Pix');
 
-  const alterar = (item, delta) => {
-    const passo = item.unidade === 'kg' ? 0.5 : 1;
-    setCarrinho(atual => ({ ...atual, [item.id]: Math.max(0, (atual[item.id] || 0) + delta * passo) }));
+  const alterarQuantidade = (produto, alteracao) => {
+    setQuantidades((anterior) => {
+      const atual = anterior[produto.id] || 0;
+      const passo = produto.unidade === 'kg' ? 0.5 : 1;
+
+      let nova = atual + alteracao * passo;
+      if (nova < 0) nova = 0;
+
+      return {
+        ...anterior,
+        [produto.id]: Number(nova.toFixed(1)),
+      };
+    });
   };
 
-  const total = useMemo(() => produtos.reduce((s, p) => s + (carrinho[p.id] || 0) * p.preco, 0), [carrinho]);
-  const selecionados = produtos.filter(p => (carrinho[p.id] || 0) > 0);
+  const carrinho = useMemo(() => {
+    return produtos
+      .filter((produto) => (quantidades[produto.id] || 0) > 0)
+      .map((produto) => ({
+        ...produto,
+        quantidade: quantidades[produto.id],
+      }));
+  }, [quantidades]);
 
-  const finalizar = async () => {
-    if (!nome.trim()) return Alert.alert('Informe seu nome');
-    if (selecionados.length === 0) return Alert.alert('Adicione pelo menos um produto');
-    if (recebimento === 'Delivery' && (!endereco.trim() || !bairro.trim())) return Alert.alert('Informe endereço e bairro para o delivery');
+  const total = useMemo(() => {
+    return carrinho.reduce(
+      (soma, item) => soma + item.preco * item.quantidade,
+      0
+    );
+  }, [carrinho]);
 
-    const itens = selecionados.map(p => {
-      const q = carrinho[p.id];
-      const qtd = p.unidade === 'kg' ? `${q.toFixed(1).replace('.', ',')} kg` : `${q} un`;
-      return `• ${p.nome}: ${qtd} - ${dinheiro(q * p.preco)}`;
-    }).join('\n');
+  const quantidadeFormatada = (produto) => {
+    const qtd = quantidades[produto.id] || 0;
 
-    const entrega = recebimento === 'Delivery'
-      ? `\n📍 Endereço: ${endereco}\nBairro: ${bairro}\nComplemento: ${complemento || 'Não informado'}`
-      : '';
+    if (produto.unidade === 'kg') {
+      return `${qtd.toFixed(1).replace('.', ',')}kg`;
+    }
 
-    const msg = `Olá! Quero fazer um pedido no Açougue do Alemão 🥩\n\n👤 Nome: ${nome}\n\n${itens}\n\n💰 Total: ${dinheiro(total)}\n📦 Recebimento: ${recebimento}${entrega}\n💳 Pagamento: ${pagamento}\n\nGostaria de confirmar meu pedido.`;
-    await Linking.openURL(`https://wa.me/5511975187941?text=${encodeURIComponent(msg)}`);
+    return `${qtd} un`;
+  };
+
+  const finalizarPedido = async () => {
+    if (carrinho.length === 0) {
+      Alert.alert('Carrinho vazio', 'Adicione algum produto ao pedido.');
+      return;
+    }
+
+    if (recebimento === 'Delivery' && !endereco.trim()) {
+      Alert.alert(
+        'Informe o endereço',
+        'Digite o endereço para receber o pedido.'
+      );
+      return;
+    }
+
+    const itens = carrinho
+      .map((item) => {
+        const qtd =
+          item.unidade === 'kg'
+            ? `${item.quantidade.toFixed(1).replace('.', ',')} kg`
+            : `${item.quantidade} un`;
+
+        const subtotal = item.preco * item.quantidade;
+
+        return `• ${item.nome} — ${qtd} — ${dinheiro(subtotal)}`;
+      })
+      .join('\n');
+
+    const entrega =
+      recebimento === 'Delivery'
+        ? `🚚 Delivery\n📍 Endereço: ${endereco}\n🏘️ Bairro: ${bairro || 'Não informado'}`
+        : '🏪 Retirada no Açougue do Alemão';
+
+    const mensagem =
+`Olá! Quero fazer um pedido no Açougue do Alemão 🥩
+
+🛒 PEDIDO
+${itens}
+
+💰 TOTAL: ${dinheiro(total)}
+
+${entrega}
+
+💳 Pagamento: ${pagamento}`;
+
+    const url =
+      `https://wa.me/5511975187941?text=${encodeURIComponent(mensagem)}`;
+
+    try {
+      await Linking.openURL(url);
+    } catch (erro) {
+      Alert.alert('Erro', 'Não foi possível abrir o WhatsApp.');
+    }
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <StatusBar style="light" />
-      <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}><Text style={styles.brand}>AÇOUGUE DO ALEMÃO</Text><Text style={styles.subtitle}>Qualidade na sua mesa 🥩</Text></View>
-        <View style={styles.hero}><Text style={styles.heroTitle}>Peça sem sair de casa</Text><Text style={styles.heroText}>Escolha seus produtos e receba por delivery ou retire no açougue.</Text></View>
+
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Image
+          source={logo}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+
+        <View style={styles.header}>
+          <Text style={styles.brand}>AÇOUGUE DO ALEMÃO</Text>
+          <Text style={styles.subtitle}>Qualidade na sua mesa 🥩</Text>
+        </View>
+
+        <View style={styles.hero}>
+          <Text style={styles.heroTitle}>Peça sem sair de casa</Text>
+          <Text style={styles.heroText}>
+            Escolha seus produtos e receba por delivery ou retire no açougue.
+          </Text>
+        </View>
 
         <Text style={styles.sectionTitle}>🛒 Nossos produtos</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categories}>
-          {['Bovinos','Suínos','Frangos','Churrasco'].map(c => <TouchableOpacity key={c} onPress={() => setCategoria(c)} style={[styles.category, categoria === c && styles.categoryActive]}><Text style={[styles.categoryText, categoria === c && styles.categoryTextActive]}>{c}</Text></TouchableOpacity>)}
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categories}
+        >
+          {categorias.map((item) => (
+            <TouchableOpacity
+              key={item}
+              style={[
+                styles.categoryButton,
+                categoria === item && styles.categoryButtonActive,
+              ]}
+              onPress={() => setCategoria(item)}
+            >
+              <Text
+                style={[
+                  styles.categoryText,
+                  categoria === item && styles.categoryTextActive,
+                ]}
+              >
+                {item}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
 
-        {produtos.filter(p => p.categoria === categoria).map(p => {
-          const q = carrinho[p.id] || 0;
-          return <View key={p.id} style={styles.productCard}>
-            <Text style={styles.emoji}>{p.emoji}</Text>
-            <View style={styles.productInfo}><Text style={styles.productName}>{p.nome}</Text><Text style={styles.price}>{dinheiro(p.preco)}/{p.unidade}</Text>{p.unidade === 'kg' && <Text style={styles.hint}>Cada toque = 500 g</Text>}</View>
-            <View style={styles.counter}><TouchableOpacity onPress={() => alterar(p,-1)} style={styles.counterButton}><Text style={styles.counterButtonText}>−</Text></TouchableOpacity><Text style={styles.qty}>{p.unidade === 'kg' ? `${q.toFixed(1).replace('.', ',')}kg` : q}</Text><TouchableOpacity onPress={() => alterar(p,1)} style={styles.counterButton}><Text style={styles.counterButtonText}>+</Text></TouchableOpacity></View>
-          </View>;
-        })}
+        {produtos
+          .filter((produto) => produto.categoria === categoria)
+          .map((produto) => (
+            <View style={styles.productCard} key={produto.id}>
+              <Text style={styles.productEmoji}>{produto.emoji}</Text>
 
-        <Text style={styles.sectionTitle}>📦 Como quer receber?</Text>
-        <View style={styles.row}>{['Retirada','Delivery'].map(x => <TouchableOpacity key={x} onPress={() => setRecebimento(x)} style={[styles.option, recebimento === x && styles.selected]}><Text style={styles.optionIcon}>{x === 'Retirada' ? '🏪' : '🛵'}</Text><Text style={styles.optionText}>{x}</Text></TouchableOpacity>)}</View>
+              <View style={styles.productInfo}>
+                <Text style={styles.productName}>{produto.nome}</Text>
+                <Text style={styles.productPrice}>
+                  {dinheiro(produto.preco)}/{produto.unidade}
+                </Text>
+                <Text style={styles.productHint}>
+                  {produto.unidade === 'kg'
+                    ? 'Cada toque = 500 g'
+                    : 'Cada toque = 1 unidade'}
+                </Text>
+              </View>
 
-        <Text style={styles.sectionTitle}>👤 Seus dados</Text>
-        <TextInput value={nome} onChangeText={setNome} placeholder="Seu nome" style={styles.input} />
-        {recebimento === 'Delivery' && <><TextInput value={endereco} onChangeText={setEndereco} placeholder="Rua e número" style={styles.input}/><TextInput value={bairro} onChangeText={setBairro} placeholder="Bairro" style={styles.input}/><TextInput value={complemento} onChangeText={setComplemento} placeholder="Complemento (opcional)" style={styles.input}/></>}
+              <View style={styles.quantityArea}>
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={() => alterarQuantidade(produto, -1)}
+                >
+                  <Text style={styles.quantityButtonText}>−</Text>
+                </TouchableOpacity>
+
+                <Text style={styles.quantityText}>
+                  {quantidadeFormatada(produto)}
+                </Text>
+
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={() => alterarQuantidade(produto, 1)}
+                >
+                  <Text style={styles.quantityButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+
+        <View style={styles.cart}>
+          <Text style={styles.cartTitle}>🛒 Seu carrinho</Text>
+
+          {carrinho.length === 0 ? (
+            <Text style={styles.emptyCart}>
+              Seu carrinho ainda está vazio.
+            </Text>
+          ) : (
+            carrinho.map((item) => (
+              <View style={styles.cartLine} key={item.id}>
+                <Text style={styles.cartItem}>
+                  {item.nome} ×{' '}
+                  {item.unidade === 'kg'
+                    ? `${item.quantidade.toFixed(1).replace('.', ',')}kg`
+                    : item.quantidade}
+                </Text>
+
+                <Text style={styles.cartValue}>
+                  {dinheiro(item.preco * item.quantidade)}
+                </Text>
+              </View>
+            ))
+          )}
+
+          <View style={styles.totalLine}>
+            <Text style={styles.totalLabel}>TOTAL</Text>
+            <Text style={styles.totalValue}>{dinheiro(total)}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.sectionTitle}>🚚 Como deseja receber?</Text>
+
+        <View style={styles.optionRow}>
+          {['Delivery', 'Retirada'].map((item) => (
+            <TouchableOpacity
+              key={item}
+              style={[
+                styles.optionButton,
+                recebimento === item && styles.optionActive,
+              ]}
+              onPress={() => setRecebimento(item)}
+            >
+              <Text
+                style={[
+                  styles.optionText,
+                  recebimento === item && styles.optionTextActive,
+                ]}
+              >
+                {item === 'Delivery' ? '🚚 Delivery' : '🏪 Retirada'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {recebimento === 'Delivery' && (
+          <View style={styles.form}>
+            <Text style={styles.inputLabel}>Endereço de entrega</Text>
+
+            <TextInput
+              style={styles.input}
+              value={endereco}
+              onChangeText={setEndereco}
+              placeholder="Rua, número e complemento"
+              placeholderTextColor="#777"
+            />
+
+            <TextInput
+              style={styles.input}
+              value={bairro}
+              onChangeText={setBairro}
+              placeholder="Bairro"
+              placeholderTextColor="#777"
+            />
+          </View>
+        )}
 
         <Text style={styles.sectionTitle}>💳 Forma de pagamento</Text>
-        <View style={styles.row}>{['Pix','Débito','Crédito'].map(x => <TouchableOpacity key={x} onPress={() => setPagamento(x)} style={[styles.pay, pagamento === x && styles.selected]}><Text style={styles.payText}>{x}</Text></TouchableOpacity>)}</View>
 
-        <View style={styles.totalRow}><Text style={styles.totalLabel}>Total</Text><Text style={styles.total}>{dinheiro(total)}</Text></View>
-        <TouchableOpacity onPress={finalizar} style={styles.whatsapp}><Text style={styles.whatsappText}>Finalizar pedido no WhatsApp</Text></TouchableOpacity>
-        <Text style={styles.address}>📍 Rua Maringá, 216 • Jundiaí/SP</Text>
+        <View style={styles.paymentArea}>
+          {['Pix', 'Débito', 'Crédito'].map((item) => (
+            <TouchableOpacity
+              key={item}
+              style={[
+                styles.paymentButton,
+                pagamento === item && styles.paymentActive,
+              ]}
+              onPress={() => setPagamento(item)}
+            >
+              <Text
+                style={[
+                  styles.paymentText,
+                  pagamento === item && styles.paymentTextActive,
+                ]}
+              >
+                {item}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <TouchableOpacity
+          style={styles.whatsappButton}
+          onPress={finalizarPedido}
+        >
+          <Text style={styles.whatsappText}>
+            📲 FINALIZAR PEDIDO NO WHATSAPP
+          </Text>
+        </TouchableOpacity>
+
+        <Text style={styles.address}>
+          📍 Rua Maringá, 216 — Jundiaí
+        </Text>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe:{flex:1,backgroundColor:'#111'}, container:{flex:1,backgroundColor:'#f6f3ed'}, header:{backgroundColor:'#111',padding:24,paddingTop:34}, brand:{color:'#fff',fontSize:25,fontWeight:'900'}, subtitle:{color:'#d8b56a',marginTop:5,fontSize:15}, hero:{margin:16,backgroundColor:'#8f171c',borderRadius:20,padding:24}, heroTitle:{color:'#fff',fontSize:28,fontWeight:'900'}, heroText:{color:'#fff',fontSize:17,lineHeight:25,marginTop:12}, sectionTitle:{fontSize:24,fontWeight:'900',marginHorizontal:16,marginTop:20,marginBottom:12}, categories:{paddingHorizontal:12,gap:8}, category:{backgroundColor:'#fff',paddingVertical:12,paddingHorizontal:22,borderRadius:24}, categoryActive:{backgroundColor:'#a7191f'}, categoryText:{fontWeight:'800',fontSize:16}, categoryTextActive:{color:'#fff'}, productCard:{marginHorizontal:16,marginBottom:10,padding:16,borderRadius:18,backgroundColor:'#fff',flexDirection:'row',alignItems:'center'}, emoji:{fontSize:34,width:48}, productInfo:{flex:1}, productName:{fontSize:18,fontWeight:'900'}, price:{fontSize:18,fontWeight:'900',color:'#a7191f',marginTop:3}, hint:{fontSize:11,color:'#777',marginTop:2}, counter:{flexDirection:'row',alignItems:'center',gap:10}, counterButton:{width:45,height:45,borderRadius:10,backgroundColor:'#111',alignItems:'center',justifyContent:'center'}, counterButtonText:{color:'#fff',fontSize:28,fontWeight:'900'}, qty:{fontSize:16,fontWeight:'900',minWidth:42,textAlign:'center'}, row:{flexDirection:'row',marginHorizontal:12}, option:{flex:1,backgroundColor:'#fff',margin:4,padding:20,borderRadius:16,alignItems:'center',borderWidth:2,borderColor:'transparent'}, selected:{borderColor:'#a7191f'}, optionIcon:{fontSize:28}, optionText:{fontWeight:'900',fontSize:17,marginTop:5}, input:{backgroundColor:'#fff',borderWidth:1,borderColor:'#ddd',borderRadius:14,padding:16,fontSize:16,marginHorizontal:16,marginBottom:10}, pay:{flex:1,backgroundColor:'#fff',margin:4,padding:18,borderRadius:14,alignItems:'center',borderWidth:2,borderColor:'transparent'}, payText:{fontSize:17,fontWeight:'900'}, totalRow:{borderTopWidth:1,borderColor:'#ccc',margin:16,paddingTop:18,flexDirection:'row',justifyContent:'space-between'}, totalLabel:{fontSize:24,fontWeight:'900'}, total:{fontSize:27,fontWeight:'900',color:'#b21f24'}, whatsapp:{backgroundColor:'#20a357',marginHorizontal:16,padding:18,borderRadius:14}, whatsappText:{color:'#fff',fontSize:18,fontWeight:'900',textAlign:'center'}, address:{textAlign:'center',color:'#666',fontSize:14,marginVertical:24}
+  safe: {
+    flex: 1,
+    backgroundColor: '#111',
+  },
+
+  container: {
+    flex: 1,
+    backgroundColor: '#f6f2ec',
+  },
+
+  content: {
+    paddingBottom: 50,
+  },
+
+  logo: {
+    width: '100%',
+    height: 150,
+    backgroundColor: '#111',
+  },
+
+  header: {
+    backgroundColor: '#111',
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 28,
+  },
+
+  brand: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: '900',
+  },
+
+  subtitle: {
+    color: '#d9ad54',
+    fontSize: 17,
+    marginTop: 6,
+  },
+
+  hero: {
+    margin: 18,
+    padding: 24,
+    borderRadius: 22,
+    backgroundColor: '#a5161d',
+  },
+
+  heroTitle: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: '900',
+  },
+
+  heroText: {
+    color: '#fff',
+    fontSize: 18,
+    lineHeight: 27,
+    marginTop: 12,
+  },
+
+  sectionTitle: {
+    color: '#111',
+    fontSize: 25,
+    fontWeight: '900',
+    marginHorizontal: 20,
+    marginTop: 24,
+    marginBottom: 14,
+  },
+
+  categories: {
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+  },
+
+  categoryButton: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 25,
+    paddingVertical: 14,
+    borderRadius: 28,
+    marginRight: 10,
+  },
+
+  categoryButtonActive: {
+    backgroundColor: '#b51920',
+  },
+
+  categoryText: {
+    color: '#111',
+    fontSize: 17,
+    fontWeight: '800',
+  },
+
+  categoryTextActive: {
+    color: '#fff',
+  },
+
+  productCard: {
+    backgroundColor: '#fff',
+    marginHorizontal: 18,
+    marginVertical: 7,
+    padding: 18,
+    borderRadius: 22,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  productEmoji: {
+    fontSize: 36,
+    marginRight: 12,
+  },
+
+  productInfo: {
+    flex: 1,
+  },
+
+  productName: {
+    color: '#111',
+    fontSize: 19,
+    fontWeight: '900',
+  },
+
+  productPrice: {
+    color: '#b51920',
+    fontSize: 20,
+    fontWeight: '900',
+    marginTop: 3,
+  },
+
+  productHint: {
+    color: '#777',
+    marginTop: 4,
+  },
+
+  quantityArea: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  quantityButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 13,
+    backgroundColor: '#111',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  quantityButtonText: {
+    color: '#fff',
+    fontSize: 30,
+    fontWeight: '900',
+  },
+
+  quantityText: {
+    minWidth: 64,
+    textAlign: 'center',
+    fontWeight: '900',
+    fontSize: 16,
+  },
+
+  cart: {
+    backgroundColor: '#111',
+    margin: 18,
+    padding: 22,
+    borderRadius: 22,
+  },
+
+  cartTitle: {
+    color: '#fff',
+    fontSize: 25,
+    fontWeight: '900',
+    marginBottom: 15,
+  },
+
+  emptyCart: {
+    color: '#ccc',
+    fontSize: 16,
+  },
+
+  cartLine: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 7,
+  },
+
+  cartItem: {
+    color: '#fff',
+    fontSize: 15,
+    flex: 1,
+  },
+
+  cartValue: {
+    color: '#fff',
+    fontWeight: '800',
+  },
+
+  totalLine: {
+    borderTopWidth: 1,
+    borderTopColor: '#555',
+    marginTop: 15,
+    paddingTop: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  totalLabel: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: '900',
+  },
+
+  totalValue: {
+    color: '#d9ad54',
+    fontSize: 24,
+    fontWeight: '900',
+  },
+
+  optionRow: {
+    flexDirection: 'row',
+    marginHorizontal: 18,
+  },
+
+  optionButton: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 15,
+    marginHorizontal: 4,
+    alignItems: 'center',
+  },
+
+  optionActive: {
+    backgroundColor: '#b51920',
+  },
+
+  optionText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#111',
+  },
+
+  optionTextActive: {
+    color: '#fff',
+  },
+
+  form: {
+    marginHorizontal: 18,
+    marginTop: 18,
+  },
+
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 8,
+  },
+
+  input: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 14,
+    fontSize: 16,
+    marginBottom: 10,
+  },
+
+  paymentArea: {
+    flexDirection: 'row',
+    marginHorizontal: 18,
+  },
+
+  paymentButton: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingVertical: 15,
+    borderRadius: 14,
+    marginHorizontal: 4,
+    alignItems: 'center',
+  },
+
+  paymentActive: {
+    backgroundColor: '#b51920',
+  },
+
+  paymentText: {
+    fontWeight: '800',
+    color: '#111',
+  },
+
+  paymentTextActive: {
+    color: '#fff',
+  },
+
+  whatsappButton: {
+    backgroundColor: '#25D366',
+    marginHorizontal: 18,
+    marginTop: 30,
+    paddingVertical: 20,
+    borderRadius: 18,
+    alignItems: 'center',
+  },
+
+  whatsappText: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: '900',
+  },
+
+  address: {
+    textAlign: 'center',
+    color: '#555',
+    marginTop: 22,
+    fontSize: 15,
+  },
 });
