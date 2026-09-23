@@ -1,7 +1,7 @@
 from PIL import Image
 import os
 
-img = Image.open("assets/produtos/catalogo.jpeg")
+img = Image.open("assets/produtos/produtos.jpeg")
 os.makedirs("assets/produtos/recortes", exist_ok=True)
 
 # Recortes dos principais produtos.
