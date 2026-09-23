@@ -36,6 +36,11 @@ const fotoProduto=p=>{
   const termo=encodeURIComponent(p.nome+' embalagem produto');
   return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
  }
+ // Todas as bebidas restantes: procura a embalagem exata pelo nome cadastrado.
+ if(p.categoria==='Bebidas'){
+  const termo=encodeURIComponent(p.nome+' bebida embalagem garrafa lata produto');
+  return {uri:'https://tse2.mm.bing.net/th?q='+termo+'&w=300&h=300&c=7&rs=1&p=0'};
+ }
  // Demais itens de mercado: procura a embalagem/foto usando a descrição exata do cadastro.
  if(p.categoria==='Hortfruti'){
   // Hortifruti deve parecer feira: fruta/verdura fresca, sem embalagem ou saquinho.
