@@ -8,20 +8,32 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const logo = require('./logo.jpeg');
 const csvAsset = require('./chat.csv');
 const fotosBovinos={
- '000001':require('./assets/produtos/recortes/acem.jpg'),
- '000002':require('./assets/produtos/recortes/contra-file.jpg'),
- '000020':require('./assets/produtos/recortes/coxao-mole.jpg'),
- '000019':require('./assets/produtos/recortes/coxao-duro.jpg'),
- '000003':require('./assets/produtos/recortes/alcatra.jpg'),
- '000004':require('./assets/produtos/recortes/picanha.jpg'),
- '000005':require('./assets/produtos/recortes/fraldinha.jpg'),
- '000006':require('./assets/produtos/recortes/maminha.jpg'),
- '000007':require('./assets/produtos/recortes/cupim.jpg'),
- '000008':require('./assets/produtos/recortes/ancho.jpg'),
- '000009':require('./assets/produtos/recortes/patinho.jpg'),
- '000010':require('./assets/produtos/recortes/paleta.jpg'),
+ ACEM:require('./assets/produtos/recortes/acem.jpg'),
+ 'CONTRA FILE':require('./assets/produtos/recortes/contra-file.jpg'),
+ 'COXAO MOLE':require('./assets/produtos/recortes/coxao-mole.jpg'),
+ 'COXAO DURO':require('./assets/produtos/recortes/coxao-duro.jpg'),
+ ALCATRA:require('./assets/produtos/recortes/alcatra.jpg'),
+ PICANHA:require('./assets/produtos/recortes/picanha.jpg'),
+ FRALDINHA:require('./assets/produtos/recortes/fraldinha.jpg'),
+ MAMINHA:require('./assets/produtos/recortes/maminha.jpg'),
+ CUPIM:require('./assets/produtos/recortes/cupim.jpg'),
+ ANCHO:require('./assets/produtos/recortes/ancho.jpg'),
+ PATINHO:require('./assets/produtos/recortes/patinho.jpg'),
+ PALETA:require('./assets/produtos/recortes/paleta.jpg'),
 };
-const fotoProduto=p=>fotosBovinos[String(p.codigo||'').trim()]||null;
+const fotoProduto=p=>{
+ const n=norm(p.nome);
+ const regras=[
+  ['COXAO MOLE','COXAO MOLE'],['COXAO DURO','COXAO DURO'],
+  ['CONTRA FILE','CONTRA FILE'],['CONTRAFILE','CONTRA FILE'],
+  ['PICANHA','PICANHA'],['ALCATRA','ALCATRA'],['FRALDINHA','FRALDINHA'],
+  ['MAMINHA','MAMINHA'],['CUPIM','CUPIM'],['PATINHO','PATINHO'],
+  ['PALETA','PALETA'],['ACEM','ACEM']
+ ];
+ for(const [termo,foto] of regras) if(n===termo) return fotosBovinos[foto];
+ if(n==='BIFE ANCHO'||n==='ANCHO') return fotosBovinos.ANCHO;
+ return null;
+};
 const CHAVE_PIX='63740060000160';
 
 const categorias=['Bovinos','Suínos','Frangos','Churrasco','Peixes','Mercearia','Bebidas Alcoólicas','Refrigerantes','Energéticos','Sucos','Águas','Outras Bebidas','Padaria','Hortfruti','Laticínios','Limpeza','Perfumaria','Utensílios Domésticos','Animal'];
