@@ -136,7 +136,26 @@ function montar(text){
 export default function App(){
  const scrollRef=React.useRef(null),searchRef=React.useRef(null),cartY=React.useRef(0),produtosY=React.useRef(0),favoritosY=React.useRef(0);
  const [produtos,setProdutos]=useState([]),[loading,setLoading]=useState(true),[categoria,setCategoria]=useState('Bovinos'),[busca,setBusca]=useState(''),[qtd,setQtd]=useState({}),[recebimento,setRecebimento]=useState('Delivery'),[endereco,setEndereco]=useState(''),[bairro,setBairro]=useState(''),[pagamento,setPagamento]=useState('Pix'),[favoritos,setFavoritos]=useState({}),[nomeCliente,setNomeCliente]=useState(''),[telefone,setTelefone]=useState(''),[referencia,setReferencia]=useState('');
- useEffect(()=>{(async()=>{try{const a=Asset.fromModule(csvAsset);await a.downloadAsync();const res=await fetch(a.localUri||a.uri);setProdutos(montar(await res.text()));}catch(e){Alert.alert('Erro no catálogo','Não foi possível carregar os produtos.');}finally{setLoading(false);}})();},[]);
+useEffect(()=>{
+  (async()=>{
+    try{
+      const { data, error } = await supabase
+        .from('produtos_app')
+        .select('*')
+        .eq('disponivel', true)
+        .order('nome');
+
+      if(error) throw error;
+
+      setProdutos(data || []);
+    }catch(e){
+      console.log('Erro Supabase:', e);
+      Alert.alert('Erro', 'Não foi possível carregar os produtos.');
+    }finally{
+      setLoading(false);
+    }
+  })();
+},[]);
  useEffect(()=>{(async()=>{try{const salvo=await AsyncStorage.getItem('favoritos_acougue_alemao');if(salvo)setFavoritos(JSON.parse(salvo));}catch(e){}})();},[]);
  useEffect(()=>{AsyncStorage.setItem('favoritos_acougue_alemao',JSON.stringify(favoritos)).catch(()=>{});},[favoritos]);
  useEffect(()=>{(async()=>{try{const salvo=await AsyncStorage.getItem('cliente_acougue_alemao');if(salvo){const d=JSON.parse(salvo);setNomeCliente(d.nomeCliente||'');setTelefone(d.telefone||'');setEndereco(d.endereco||'');setBairro(d.bairro||'');setReferencia(d.referencia||'');}}catch(e){}})();},[]);
