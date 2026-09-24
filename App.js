@@ -5,6 +5,7 @@ import { Asset } from 'expo-asset';
 import * as Location from 'expo-location';
 import * as Clipboard from 'expo-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from './supabase';
 const logo = require('./logo.jpeg');
 const csvAsset = require('./chat.csv');
 const fotosBovinos={
