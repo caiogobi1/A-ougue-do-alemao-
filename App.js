@@ -168,8 +168,7 @@ useEffect(()=>{
   }
   return lista;
  },[produtos,categoria,busca]);
- const CODIGOS_OFERTAS=['000001','000019','000113','000138']; // Acém, Coxão Duro, Tulipa, Pernil com Osso
- const ofertas=useMemo(()=>CODIGOS_OFERTAS.map(cod=>produtos.find(p=>String(p.codigo).trim()===cod)).filter(Boolean),[produtos]);
+ const ofertas=useMemo(()=>produtos.filter(p=>p.oferta===true),[produtos]);
  const CODIGOS_MAIS_VENDIDOS=['050','000001','000002','000014','000020','000113','000091','000060'];
  const maisVendidos=useMemo(()=>CODIGOS_MAIS_VENDIDOS.map(cod=>produtos.find(p=>String(p.codigo).trim()===cod)).filter(Boolean),[produtos]);
  const favoritar=id=>setFavoritos(v=>({...v,[id]:!v[id]}));
